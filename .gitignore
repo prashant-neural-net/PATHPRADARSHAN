@@ -1,0 +1,66 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.so
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large satellite/raster data
+*.tif
+*.tiff
+*.jp2
+*.img
+*.zip
+
+# Large geospatial files
+*.gpkg
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.geojson
+
+# Large graph artifacts
+*.gpickle
+*.pkl
+
+# Local data
+data/
+datasets/
+dataset/
+dataset_current_narrow/
+dataset_v3_original/
+liss_dataset/
+liss_adaptive_dataset/
+
+# Archive / experiments
+archive/
+
+# Temporary files
+*.log
+*.tmp
+
+# Old model checkpoints
+*_v3*.pth
+*_v4*.pth
+*_checkpoint*.pth
+
+# Final V5 model
+!model/road_unet_v5_best.pth
+
+# Local generated artifacts
+*.aux.xml
+sentinel_bengaluru_0cloud/
+s2_bengaluru.json
+sentinel_results.json
+repo_check/
+
+# Root-level generated PNGs (keep visualizations/)
+ /bengaluru_v5_mask_70.png
