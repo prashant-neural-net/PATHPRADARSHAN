@@ -130,10 +130,10 @@ for t in thresholds:
     )
 
     print(
-        f"Threshold {t:.2f} | "
-        f"Dice: {dice:.4f} | "
-        f"IoU: {iou:.4f} | "
-        f"Precision: {precision:.4f} | "
+        f"Threshold {t:.2f} |"
+        f"Dice: {dice:.4f} |"
+        f"IoU: {iou:.4f} |"
+        f"Precision: {precision:.4f} |"
         f"Recall: {recall:.4f}"
     )
 
