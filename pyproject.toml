@@ -6,9 +6,10 @@ readme = "README.md"
 authors = [
     { name = "Prashant Tripathi", email = "prashant-neural-net@gmail.com" }
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.11, <3.14"
 dependencies = [
     "fastapi>=0.141.1",
+    "rasterio>=1.4.4",
     "uvicorn>=0.52.3",
 ]
 
