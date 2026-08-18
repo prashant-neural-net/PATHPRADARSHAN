@@ -115,3 +115,152 @@ def predict_patches(image, model):
                    :patch_h,
                    :patch_w
             ] = patch
+            # normalize
+            padded /= 10000.0
+
+            # Numpy to pytorch
+            padded = np.ascontiguousarray(padded)
+
+            tensor = torch.from_numpy(
+                padded
+            ).unsqueeze(0).float().to(DEVICE)
+
+            # model inference
+            with torch.no_grad():
+                logits = model(
+                    tensor
+                )
+
+                probs = torch.sigmoid(logits)
+
+            # pytorch to numpy
+            # may cause error
+            probs = (
+                probs[0, 0].detach().to(DEVICE).numpy()
+            )
+
+            # remove padding
+
+            probs = probs[:patch_h, :patch_w]
+
+            probability_sum[y:y_end, x:x_end] += probs
+
+            # count predictions
+            predict_count[y:y_end, x:x_end] += 1
+        # Average overlapping predictions
+    valid = predict_count > 0
+
+    probability_map = np.zeros_like(
+        probability_sum
+    )
+
+    probability_map[valid] = (
+        probability_sum[valid]
+        /
+        predict_count[valid]
+    )
+
+    return probability_map
+
+
+    ### save probability map
+def save_probability_map(
+            probability_map,
+            profile,
+            output_path
+):
+    prob_profile = profile.copy()
+
+    prob_profile.update(
+            count=1,
+            dtype="float32",
+            nodata=0,
+            compress="LZN"
+    )
+
+    with rasterio.open(
+            output_path,
+            "w",
+            **prob_profile
+    ) as dst:
+            
+        dst.write(
+            probability_map.astype(
+                np.float32
+        ),
+        1
+)
+        
+def create_road_mask(
+        probability_map,
+):
+    road_mask = (
+        probability_map >= THRESHOLD
+    ).astype(np.uint8)
+
+    return road_mask
+
+def save_road_mask(
+        road_mask,
+        profile,
+        output_path
+):
+    mask_profile = profile.copy()
+
+    mask_profile.update(
+        count=1,
+        dtype="uint8",
+        nodata=0,
+        compress="LZW"
+    )
+
+    with rasterio.open(
+        output_path,
+        "w",
+        **mask_profile
+    ) as dst:
+        
+        dst.write(
+            road_mask,
+            1,
+        )
+
+### running inference
+def run_inference(
+        input_path,
+        probability_path,
+        mask_path
+):
+    model = load_model()
+
+    image, profile, height, width = read_raster(input_path)
+
+    probability_map = predict_patches(
+        image,
+        model
+    )
+
+    save_probability_map(
+        probability_map,
+        profile,
+        probability_path
+    )
+
+    road_mask = create_road_mask(
+        probability_map
+    )
+
+    save_road_mask(
+        road_mask,
+        profile,
+        mask_path
+    )
+
+    return {
+        "probability_path": str(
+            probability_path
+        ),
+        "mask_path": str(
+            mask_path
+        ),
+    }

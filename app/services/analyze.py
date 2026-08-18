@@ -3,11 +3,14 @@ from uuid import uuid4
 
 from fastapi import UploadFile
 
-from ..services.raster import (
+from .raster import (
     inspect_band
 )
 
+from .inference import run_inference
+
 UPLOAD_DIR = Path("data/uploads")
+RESULT_DIR = Path("data/results")
 
 
 async def save_analysis_image(
@@ -35,6 +38,28 @@ async def save_analysis_image(
     
     raster = inspect_band(output_path)
 
+    RESULT_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
+    probability_path = (
+        RESULT_DIR
+        / f"{analysis_id}_probability.tif"
+    )
+
+    mask_path = (
+        RESULT_DIR
+        / f"{analysis_id}_road_mask.tif"
+    )
+
+    # run inference model
+    inference_result = run_inference(
+        output_path,
+        probability_path,
+        mask_path,
+    )
+
     return {
         "analysis_id": analysis_id,
         "filename": file.filename,
@@ -42,3 +67,4 @@ async def save_analysis_image(
         "path": str(output_path),
         "raster": raster
     }
+
