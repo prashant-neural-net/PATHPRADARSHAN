@@ -3,11 +3,15 @@ from uuid import uuid4
 
 from fastapi import UploadFile
 
+from ..services.raster import (
+    inspect_band
+)
+
 UPLOAD_DIR = Path("data/uploads")
 
 
 async def save_analysis_image(
-    file: UploadFile,
+    file: UploadFile
 ):
     UPLOAD_DIR.mkdir(
         parents=True,
@@ -28,10 +32,13 @@ async def save_analysis_image(
         while chunk := await file.read(1024 * 1024):
 
             buffer.write(chunk)
+    
+    raster = inspect_band(output_path)
 
     return {
         "analysis_id": analysis_id,
         "filename": file.filename,
         "status": "uploaded",
         "path": str(output_path),
+        "raster": raster
     }
